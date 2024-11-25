@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 
 app = Flask(__name__, static_folder='.', static_url_path='')
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"]}})  # Update CORS config
 
 # Load model
 with open('stunting_model.pkl', 'rb') as f:
