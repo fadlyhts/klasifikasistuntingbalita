@@ -8,9 +8,13 @@ import numpy as np
 app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
 
-# Load model
-with open('stunting_model.pkl', 'rb') as f:
-    model_objects = pickle.load(f)
+# Tambahkan error handling untuk load model
+try:
+    with open('stunting_model.pkl', 'rb') as f:
+        model_objects = pickle.load(f)
+except Exception as e:
+    print(f"Error loading model: {str(e)}")
+    raise
 
 scaler = model_objects['scaler']
 feature_scores = model_objects['feature_scores']
