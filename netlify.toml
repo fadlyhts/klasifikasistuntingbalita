@@ -1,8 +1,6 @@
-
 [build]
-  command = "# no build command"
-  functions = "netlify/functions"
   publish = "."
+  command = "# no build command needed"
 
 [[redirects]]
   from = "/*"

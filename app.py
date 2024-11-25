@@ -1,9 +1,12 @@
 from flask import Flask, request, render_template, jsonify
+from flask_cors import CORS
+import os
 import pickle
 import pandas as pd
 import numpy as np
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
+CORS(app)
 
 # Load model
 with open('stunting_model.pkl', 'rb') as f:
@@ -60,7 +63,7 @@ def predict_status(input_data):
             all_possible_features = set(selected_features)
             if hasattr(best_models[target], 'feature_names_in_'):
                 all_possible_features.update(best_models[target].feature_names_in_)
-            
+
             # Prepare features in correct order
             X_pred = input_scaled[list(all_possible_features)].copy()
             
@@ -83,7 +86,7 @@ def predict_status(input_data):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return app.send_static_file('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -122,4 +125,4 @@ def predict():
         return jsonify({'error': 'Terjadi kesalahan internal'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
