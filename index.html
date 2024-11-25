@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klasifikasi Stunting</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content {
+            flex: 1 0 auto;
+        }
+        .footer {
+            flex-shrink: 0;
+            width: 100%;
+            margin-top: auto;
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .loading {
+            display: none;
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .error-text {
+            color: #dc3545;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="container mt-5">
+            <h2 class="mb-4 text-center">Sistem Klasifikasi Status Stunting</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <form id="predictionForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="jk" class="form-label">Jenis Kelamin</label>
+                                            <select class="form-select" id="jk" name="jk" required>
+                                                <option value="">Pilih Jenis Kelamin</option>
+                                                <option value="L">Laki-laki</option>
+                                                <option value="P">Perempuan</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="bb_lahir" class="form-label">Berat Badan Lahir (kg)</label>
+                                            <input type="number" step="0.01" class="form-control" id="bb_lahir" name="bb_lahir" required min="0" max="10">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="tb_lahir" class="form-label">Tinggi Badan Lahir (cm)</label>
+                                            <input type="number" step="0.1" class="form-control" id="tb_lahir" name="tb_lahir" required min="30" max="100">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="berat" class="form-label">Berat Badan Saat Ini (kg)</label>
+                                            <input type="number" step="0.1" class="form-control" id="berat" name="berat" required min="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="tinggi" class="form-label">Tinggi Badan Saat Ini (cm)</label>
+                                            <input type="number" step="0.1" class="form-control" id="tinggi" name="tinggi" required min="0">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="zs_bbu" class="form-label">Z-Score BB/U</label>
+                                            <input type="number" step="0.01" class="form-control" id="zs_bbu" name="zs_bbu" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="zs_tbu" class="form-label">Z-Score TB/U</label>
+                                            <input type="number" step="0.01" class="form-control" id="zs_tbu" name="zs_tbu" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="zs_bbtb" class="form-label">Z-Score BB/TB</label>
+                                            <input type="number" step="0.01" class="form-control" id="zs_bbtb" name="zs_bbtb" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary px-5">Prediksi Status</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="loadingIndicator" class="text-center mt-4 loading">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Memproses data...</p>
+                    </div>
+
+                    <div id="results" class="card mt-4" style="display: none;">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Hasil Prediksi</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="predictionResults"></div>
+                        </div>
+                    </div>
+
+                    <div id="errorMessage" class="alert alert-danger mt-4" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© 2024 Ahmad Fadli Hutasuhut</span>
+        </div>
+    </footer>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const API_URL = 'https://klasifikasi-stunting.onrender.com'; // atau URL backend Anda
+            
+            $('#predictionForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                // Reset previous states
+                $('#errorMessage').hide();
+                $('#results').hide();
+                $('#loadingIndicator').show();
+                
+                // Collect form data
+                const formData = {
+                    jk: $('#jk').val(),
+                    bb_lahir: parseFloat($('#bb_lahir').val()),
+                    tb_lahir: parseFloat($('#tb_lahir').val()),
+                    berat: parseFloat($('#berat').val()),
+                    tinggi: parseFloat($('#tinggi').val()),
+                    zs_bbu: parseFloat($('#zs_bbu').val()),
+                    zs_tbu: parseFloat($('#zs_tbu').val()),
+                    zs_bbtb: parseFloat($('#zs_bbtb').val())
+                };
+
+                // Validate data
+                if (Object.values(formData).some(val => isNaN(val) && typeof val !== 'string')) {
+                    $('#errorMessage').text('Semua field harus diisi dengan benar').show();
+                    $('#loadingIndicator').hide();
+                    return;
+                }
+
+                $.ajax({
+                    url: `${API_URL}/predict`,  // Hapus .netlify/functions/
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(response) {
+                        $('#loadingIndicator').hide();
+                        
+                        if (response.error) {
+                            $('#errorMessage').text(response.error).show();
+                            return;
+                        }
+                        
+                        let results = '';
+                        if (response.status_bbu) {
+                            results += `
+                                <div class="mb-3">
+                                    <h6 class="fw-bold">Status BB/U:</h6>
+                                    <p class="mb-0 alert alert-info">${response.status_bbu}</p>
+                                </div>`;
+                        }
+                        if (response.status_tbu) {
+                            results += `
+                                <div class="mb-3">
+                                    <h6 class="fw-bold">Status TB/U:</h6>
+                                    <p class="mb-0 alert alert-info">${response.status_tbu}</p>
+                                </div>`;
+                        }
+                        if (response.status_bbtb) {
+                            results += `
+                                <div class="mb-3">
+                                    <h6 class="fw-bold">Status BB/TB:</h6>
+                                    <p class="mb-0 alert alert-info">${response.status_bbtb}</p>
+                                </div>`;
+                        }
+                        
+                        $('#predictionResults').html(results);
+                        $('#results').show();
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loadingIndicator').hide();
+                        console.error("Ajax error:", xhr.responseText);
+                        $('#errorMessage').text('Terjadi kesalahan: ' + (xhr.responseJSON?.error || error)).show();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

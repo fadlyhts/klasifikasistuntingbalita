@@ -130,6 +130,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            const API_URL = 'https://YOUR-APP-NAME.netlify.app'; // Akan diupdate nanti setelah deploy
+            
             $('#predictionForm').on('submit', function(e) {
                 e.preventDefault();
                 
@@ -158,7 +160,7 @@
                 }
 
                 $.ajax({
-                    url: '/predict',
+                    url: `${API_URL}/.netlify/functions/predict`,  // Update endpoint untuk Netlify Functions
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(formData),
