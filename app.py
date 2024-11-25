@@ -6,7 +6,15 @@ import pandas as pd
 import numpy as np
 
 app = Flask(__name__, static_folder='.', static_url_path='')
-CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"]}})  # Update CORS config
+
+# Update CORS configuration
+CORS(app, resources={
+    r"/*": {
+        "origins": ["https://fadlyhts.github.io", "http://localhost:5000", "https://klasifikasistuntingbalita.onrender.com"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 # Load model
 with open('stunting_model.pkl', 'rb') as f:
@@ -123,6 +131,13 @@ def predict():
     except Exception as e:
         print(f"Error in predict route: {str(e)}")
         return jsonify({'error': 'Terjadi kesalahan internal'}), 500
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', 'https://fadlyhts.github.io')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    return response
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

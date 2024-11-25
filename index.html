@@ -130,7 +130,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            const API_URL = 'https://klasifikasi-stunting.onrender.com'; // Pastikan URL ini benar
+            const API_URL = 'https://klasifikasistuntingbalita.onrender.com';  // Update sesuai nama di Render
             
             $('#predictionForm').on('submit', function(e) {
                 e.preventDefault();
@@ -160,13 +160,13 @@
                 }
 
                 $.ajax({
-                    url: `${API_URL}/predict`,
+                    url: `${API_URL}/predict`,  // Hapus .netlify/functions/
                     type: 'POST',
                     contentType: 'application/json',
-                    crossDomain: true,  // Tambahkan ini
-                    headers: {  // Tambahkan ini
+                    crossDomain: true,
+                    headers: {
                         'Accept': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Content-Type': 'application/json'
                     },
                     data: JSON.stringify(formData),
                     success: function(response) {
