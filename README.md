@@ -22,7 +22,7 @@ Aplikasi web untuk mengklasifikasikan status stunting pada balita berdasarkan be
 ## Demo
 
 - Frontend: [https://fadlyhts.github.io/klasifikasistuntingbalita/](https://fadlyhts.github.io/klasifikasistuntingbalita/)
-- Backend API: [https://klasifikasi-stunting.onrender.com](https://klasifikasi-stunting.onrender.com)
+- Backend API: [https://klasifikasistuntingbalita.onrender.com](https://klasifikasistuntingbalita.onrender.com)
 
 ## Cara Penggunaan
 
